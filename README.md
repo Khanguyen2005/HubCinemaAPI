@@ -38,9 +38,6 @@ The project follows a **Multi-Layer Architecture** combined with **MVC**:
 
 ---
 
-## 📦 Installation & Setup  
+<img width="1904" height="909" alt="image" src="https://github.com/user-attachments/assets/aced8f2c-2091-47e6-ad1e-09e70dc17498" />
+<img width="1899" height="912" alt="image" src="https://github.com/user-attachments/assets/da6f1aad-472c-444b-8850-e71d9af38e0d" />
 
-### 1️⃣ Clone the repository
-```bash
-git clone https://github.com/nguyenxuanbac88/HubCinema-API.git
-cd HubCinema-API
