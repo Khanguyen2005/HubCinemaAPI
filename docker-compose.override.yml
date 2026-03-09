@@ -1,0 +1,13 @@
+# Override file for development environment
+version: '3.8'
+
+services:
+  hubcinema-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    volumes:
+      # Mount source code for hot reload (optional)
+      - ./wwwroot:/app/wwwroot

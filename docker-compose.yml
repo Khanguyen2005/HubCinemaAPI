@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # ASP.NET Core API
+  hubcinema-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hubcinema-api
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      # Database connection
+      - ConnectionStrings__DefaultConnection=Data Source=sqlserver,1433;Initial Catalog=cinema;User ID=sa;Password=StrongPass@123;Encrypt=True;Trust Server Certificate=True
+      # Redis connection
+      - Redis__ConnectionString=redis:6379,abortConnect=False
+      # JWT settings
+      - Jwt__Key=this_is_my_secret_key_for_jwt_token_123456
+      - Jwt__Issuer=HUBCinemaAPI
+      - Jwt__Audience=myCinemaClient
+      - Jwt__ExpiresInMinutes=60
+      # Email settings
+      - EmailSettings__SmtpServer=smtp.gmail.com
+      - EmailSettings__Port=587
+      - EmailSettings__SenderName=HubCinema
+      - EmailSettings__SenderEmail=cinemahub405@gmail.com
+      - EmailSettings__Username=cinemahub405@gmail.com
+      - EmailSettings__Password=myuj rsed pkez tvsn
+      - EmailSettings__EnableSsl=true
+    depends_on:
+      - sqlserver
+      - redis
+    networks:
+      - hubcinema-network
+    restart: unless-stopped
+
+  # SQL Server
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hubcinema-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=StrongPass@123
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - hubcinema-network
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: hubcinema-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - hubcinema-network
+    restart: unless-stopped
+
+networks:
+  hubcinema-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+  redis-data:
