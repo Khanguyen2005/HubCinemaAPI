@@ -47,17 +47,20 @@ namespace API_Project.Services
             if (!exists)
                 return ApiResponse<List<DateTime>>.Fail(ScheduleErrorCode.MovieNotFound, "Phim không tồn tại.");
 
-            var dates = await _db.Showtimes
+            var showtimes = await _db.Showtimes
                 .Where(s => s.MaPhim == maPhim)
-                .Select(s => s.NgayChieu)
-                .Distinct()
-                .OrderBy(d => d)
                 .ToListAsync();
 
-            if (!dates.Any())
+            if (!showtimes.Any())
                 return ApiResponse<List<DateTime>>.Fail(ScheduleErrorCode.NoShowtimes, "Không có suất chiếu.");
 
-            return ApiResponse<List<DateTime>>.Ok(dates);
+            // Kết hợp NgayChieu và GioChieu để có được datetime đầy đủ
+            var dateTimeList = showtimes
+                .Select(s => s.NgayChieu.Date.Add(s.GioChieu))
+                .OrderBy(dt => dt)
+                .ToList();
+
+            return ApiResponse<List<DateTime>>.Ok(dateTimeList);
         }
 
         public async Task<ApiResponse<List<GroupedShowtimeDTO>>> GetShowtimesAsync(int maPhim, DateTime date, string region = null, int? maRap = null)
@@ -113,7 +116,7 @@ namespace API_Project.Services
 
             return ApiResponse<List<int>>.Ok(movieIds);
         }
-
+        //
         public async Task<bool> CreateShowtimeAsync(ShowtimeDTO showtimeDTO)
         {
             try
@@ -126,21 +129,45 @@ namespace API_Project.Services
                 }
 
                 var newStart = showtimeDTO.GioChieu;
-                var newEnd = newStart
-                    .Add(TimeSpan.FromMinutes(movie.Duration + 20)); // 10' quảng cáo + 10' dọn rạp
+                var newEnd = newStart.Add(TimeSpan.FromMinutes(movie.Duration + 20));
 
                 var showtimesInSameRoom = await _db.Showtimes
-                    .Where(s => s.PhongChieu == showtimeDTO.PhongChieu && s.NgayChieu == showtimeDTO.NgayChieu)
+                    .Where(s => s.PhongChieu == showtimeDTO.PhongChieu && 
+                               s.NgayChieu.Date == showtimeDTO.NgayChieu.Date)
                     .ToListAsync();
 
                 foreach (var existing in showtimesInSameRoom)
                 {
-                    if (existing.GioKetThuc == null) continue;
+                    // Tính toán thời gian kết thúc nếu null
+                    var existingEnd = existing.GioKetThuc;
+                    if (existingEnd == null)
+                    {
+                        var existingMovie = await _db.Movies.FirstOrDefaultAsync(m => m.IDMovie == existing.MaPhim);
+                        if (existingMovie != null)
+                        {
+                            existingEnd = existing.GioChieu.Add(TimeSpan.FromMinutes(existingMovie.Duration + 20));
+                        }
+                        else
+                        {
+                            existingEnd = existing.GioChieu.Add(TimeSpan.FromMinutes(140));
+                        }
+                    }
 
-                    bool isOverlap = newStart < existing.GioKetThuc && existing.GioChieu < newEnd;
+                    // SỬA LẠI LOGIC KIỂM TRA TRÙNG LỊCH
+                    var bufferTime = TimeSpan.FromMinutes(15);
+                    
+                    // Thêm buffer time vào thời gian existing để tạo khoảng cách
+                    var existingStartWithBuffer = existing.GioChieu.Subtract(bufferTime);
+                    var existingEndWithBuffer = existingEnd.Value.Add(bufferTime);
+                    
+                    // Kiểm tra overlap: suất mới có bị chồng lấn với existing không?
+                    bool isOverlap = (newStart < existingEndWithBuffer) && (newEnd > existingStartWithBuffer);
+                    
                     if (isOverlap)
                     {
-                        Console.WriteLine($"ERROR: Suất chiếu bị trùng tại phòng {showtimeDTO.PhongChieu}.");
+                        Console.WriteLine($"ERROR: Suất chiếu bị trùng tại phòng {showtimeDTO.PhongChieu}. " +
+                                        $"Existing: {existing.GioChieu}-{existingEnd} (buffer: {existingStartWithBuffer}-{existingEndWithBuffer}), " +
+                                        $"New: {newStart}-{newEnd}");
                         return false;
                     }
                 }
@@ -170,20 +197,31 @@ namespace API_Project.Services
         }
         public async Task<List<ShowtimeTimelineDTO>> GetShowtimesTimelineByDateAndCinemaAsync(DateTime ngay, int maRap)
         {
-            var showtimes = await _db.Showtimes
-                .Include(s => s.Movie)
-                .Include(s => s.Room)
-                .Where(s => s.NgayChieu.Date == ngay.Date && s.MaRap == maRap)
-                .Select(s => new ShowtimeTimelineDTO
+            try
+            {
+                var showtimes = await _db.Showtimes
+                    .Include(s => s.Movie)
+                    .Include(s => s.Room)
+                    .Where(s => s.NgayChieu.Date == ngay.Date && s.MaRap == maRap)
+                    .ToListAsync(); // Lấy data về memory trước
+
+                // Xử lý sau khi đã ToListAsync() - không còn Expression Tree
+                var result = showtimes.Select(s => new ShowtimeTimelineDTO
                 {
                     Id = s.MaSuatChieu.ToString(),
-                    Name = s.Movie.MovieName,
+                    Name = s.Movie?.MovieName ?? "Không rõ phim", // ✅ OK sau ToListAsync()
                     Start = s.NgayChieu.Date.Add(s.GioChieu).ToString("yyyy-MM-ddTHH:mm:ss"),
                     End = s.NgayChieu.Date.Add(s.GioKetThuc ?? s.GioChieu.Add(TimeSpan.FromMinutes(120))).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    Resource = $"{s.Room.RoomName}"
-                })
-                .ToListAsync();
-            return showtimes;
+                    Resource = s.Room?.RoomName ?? $"Phòng {s.PhongChieu}" // ✅ OK sau ToListAsync()
+                }).ToList();
+                
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetShowtimesTimelineByDateAndCinemaAsync Error: {ex.Message}");
+                return new List<ShowtimeTimelineDTO>();
+            }
         }
     }
 }

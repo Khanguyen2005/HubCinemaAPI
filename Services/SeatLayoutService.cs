@@ -20,7 +20,6 @@ namespace API_Project.Services
             _dbContext = dbContext;
             _redis = redis.GetDatabase();
         }
-
         public async Task<object> GetFullSeatLayoutWithPricesAsync(int idSuatChieu)
         {
             if (_env.WebRootPath == null)
@@ -150,6 +149,36 @@ namespace API_Project.Services
             return true;
         }
 
+        public async Task<object> GetSeatLayoutByRoomAsync(int idRoom)
+        {
+            if (_env.WebRootPath == null)
+                throw new InvalidOperationException("WebRootPath is not set.");
+
+            var phong = await _dbContext.Rooms
+                .FirstOrDefaultAsync(p => p.IDRoom == idRoom);
+
+            if (phong == null)
+                throw new Exception($"Không tìm thấy phòng chiếu với id = {idRoom}");
+
+            if (string.IsNullOrEmpty(phong.id_layout))
+                throw new Exception($"Phòng chiếu id = {idRoom} chưa có layout.");
+
+            string layoutPath = Path.Combine(_env.WebRootPath, "data", "seat-layout", $"{phong.id_layout}.json");
+
+            if (!File.Exists(layoutPath))
+                throw new FileNotFoundException($"Layout file not found: {layoutPath}");
+
+            string layoutJson = await File.ReadAllTextAsync(layoutPath);
+            var layoutData = JsonSerializer.Deserialize<SeatLayoutWrapper>(layoutJson);
+
+            return new
+            {
+                roomId = idRoom,
+                roomName = phong.RoomName,
+                layoutName = phong.id_layout,
+                layout = layoutData.layout
+            };
+        }
 
         private class SeatLayoutWrapper
         {

@@ -1,108 +1,43 @@
+# 🎬 HubCinema API – Movie Ticket Booking Management System  
 
-# 🎬 Cinema Ticket Booking API
+## 📖 Overview  
+**HubCinema API** is the backend system for an online movie ticket booking platform.  
+It provides RESTful APIs that manage users, movies, showtimes, seat reservations, payments, and reporting for cinema administrators.  
+The system is designed to optimize ticket booking, prevent double bookings, and enhance user experience through real-time seat management and secure online payment integration.  
 
-This is a RESTful API built for managing an online cinema ticket booking system. It supports core features such as movie listings, showtimes, seat management, ticket and food purchases, and invoice tracking.
+---
 
-## 📌 Technologies Used
+## 🚀 Features  
+- 🔐 **JWT Authentication** – secure login and role-based access control (Customer, Staff, Admin).  
+- 🎟️ **Online Ticket Booking** – users can select movies, seats, and combos and pay online via VNPay.  
+- 🪑 **Temporary Seat Reservation using Redis** – prevents double booking and reduces database load.  
+- 💳 **VNPay Integration** – handles payment gateway and callback verification.  
+- 🏢 **Admin Dashboard APIs** – manage movies, theaters, rooms, promotions, and reports.  
+- 📊 **Statistics & Reports** – revenue tracking, daily/weekly performance reports.  
+- ⚙️ **CI/CD with GitHub Actions** – automatic build and deployment pipelines.  
+- ☁️ **Cloud Deployment** – hosted on cloud environment for scalability and reliability.  
 
-- ASP.NET Core (C#)
-- SQL Server
-- Entity Framework Core
-- JWT Authentication
-- REST API
+---
 
-## 🚦 Main Features
+## 🏗️ System Architecture  
 
-- User registration and login
-- View cinema clusters, rooms, movies, and showtimes
-- Select seats and book tickets
-- Add food items to an invoice
-- Generate and view invoices with total payment
-- User spending tracking
+The project follows a **Multi-Layer Architecture** combined with **MVC**:  
+- **Presentation Layer (View):** Web interfaces using ASP.NET Razor.  
+- **Business Logic Layer (Controller/Services):** Handles business rules and data flow.  
+- **Data Access Layer (Models/Repositories):** Uses Entity Framework Core and LINQ for database operations.  
 
-## 🗃️ Database Overview
+🧩 **Tech Stack:**  
+- **Language:** C#  
+- **Framework:** ASP.NET Core MVC  
+- **Database:** SQL Server  
+- **Cache:** Redis  
+- **Authentication:** JWT  
+- **API Docs:** Swagger (Swashbuckle)  
+- **Version Control:** Git & GitHub  
+- **DevOps:** GitHub Actions (CI/CD)  
 
-This system uses a relational database design. Some key tables include:
+---
 
-- **Cinemas** – Stores information about cinema clusters
-- **Cinema_rooms** – Manages rooms within each cinema
-- **Movies** – Holds details about movies
-- **Showtimes** – Schedules for each movie per cinema
-- **SeatTypes & ShowtimeSeats** – Defines seat categories and availability
-- **Invoice / InvoiceTickets / InvoiceFood** – Tracks all ticket and food purchases
-- **Food** – Available snacks and drinks
-- **User** – Manages user information, roles, and spending
-
-## 🚀 Getting Started
-
-### 1. Clone the Project
-```bash
-git clone https://github.com/nguyenxuanbac88/API_ProjectCinema
-cd API_ProjectCinema
-```
-
-### 2. Set up Database Connection
-Edit the `appsettings.json` file to configure your connection string:
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=YOUR_SERVER;Database=cinema;User Id=sa;Password=YOUR_PASSWORD;"
-}
-```
-
-### 3. Run Database Migration
-```bash
-dotnet ef database update
-```
-
-### 4. Start the API Server
-```bash
-dotnet run
-```
-
-### 5. Access API Endpoints
-The API will be available at:
-```
-http://localhost:5000/api/
-```
-
-## 🧪 Sample Endpoints
-
-| Method | Endpoint                     | Description                     |
-|--------|------------------------------|---------------------------------|
-| GET    | /api/cinemas                 | List all cinemas                |
-| GET    | /api/movies                  | List all movies                 |
-| POST   | /api/auth/register           | Register new user               |
-| POST   | /api/invoice                 | Create ticket + food invoice    |
-| GET    | /api/showtimes/{movieId}     | Get showtimes for a movie       |
-
-## 🔐 Authentication
-
-This project uses **JWT** for securing API routes.  
-Use the following header format:
-```
-Authorization: Bearer <your_token>
-```
-
-## 📖 API Documentation
-
-If Swagger is enabled, access documentation at:
-```
-http://localhost:5000/swagger
-```
-
-## 👨‍🎓 Developer
-
-**Nguyễn Xuân Bắc**  
-Student ID: `23DH110293` 
-
-**Lâm Tấn Thành**  
-Student ID: `23DH113200` 
-
-**Trần Duy Khoa**  
-Student ID: `23DH114398` 
-
-**Nguyễn Đàm Khá**  
-Student ID: `23DH111567` 
-
-**Ho Chi Minh City University of Foreign Languages and Information Technology (HUFLIT)**
+<img width="1904" height="909" alt="image" src="https://github.com/user-attachments/assets/aced8f2c-2091-47e6-ad1e-09e70dc17498" />
+<img width="1899" height="912" alt="image" src="https://github.com/user-attachments/assets/da6f1aad-472c-444b-8850-e71d9af38e0d" />
 
