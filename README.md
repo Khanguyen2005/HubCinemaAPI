@@ -119,5 +119,3 @@ Swagger UI: `http://localhost:5000/swagger`
 ## Contributors
 
 **Team Members:** Khá, Bắc, Khoa, Thành
-
-Cứ nói nhé!
