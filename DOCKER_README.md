@@ -53,7 +53,7 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 - SQL Server: localhost,1433 (sa/StrongPass@123)
 - Redis: localhost:6379
 
-### Build ch? Docker image (không dùng docker-compose)
+### Build cho Docker image (không dùng docker-compose)
 
 #### Build image
 ```bash

@@ -1,6 +1,6 @@
 # H??ng d?n Deploy HubCinema API lên Host
 
-## ?? M?c l?c
+## M?c l?c
 1. [Deploy lên Docker Hub](#1-deploy-lên-docker-hub)
 2. [Deploy lên Azure Container Registry (ACR)](#2-deploy-lên-azure-container-registry)
 3. [Deploy lên Google Container Registry (GCR)](#3-deploy-lên-google-container-registry)
