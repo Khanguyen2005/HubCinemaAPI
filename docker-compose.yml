@@ -13,11 +13,11 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       # Database connection
-      - ConnectionStrings__DefaultConnection=Data Source=sqlserver,1433;Initial Catalog=cinema;User ID=sa;Password=StrongPass@123;Encrypt=True;Trust Server Certificate=True
+      - ConnectionStrings__DefaultConnection=${DB_CONNECTION}
       # Redis connection
-      - Redis__ConnectionString=redis:6379,abortConnect=False
+      - Redis__ConnectionString=${REDIS_CONNECTION}
       # JWT settings
-      - Jwt__Key=this_is_my_secret_key_for_jwt_token_123456
+      - Jwt__Key=${JWT_KEY}
       - Jwt__Issuer=HUBCinemaAPI
       - Jwt__Audience=myCinemaClient
       - Jwt__ExpiresInMinutes=60
@@ -25,9 +25,9 @@ services:
       - EmailSettings__SmtpServer=smtp.gmail.com
       - EmailSettings__Port=587
       - EmailSettings__SenderName=HubCinema
-      - EmailSettings__SenderEmail=cinemahub405@gmail.com
-      - EmailSettings__Username=cinemahub405@gmail.com
-      - EmailSettings__Password=myuj rsed pkez tvsn
+      - EmailSettings__SenderEmail=${EMAIL_USERNAME}
+      - EmailSettings__Username=${EMAIL_USERNAME}
+      - EmailSettings__Password=${EMAIL_PASSWORD}
       - EmailSettings__EnableSsl=true
     depends_on:
       - sqlserver
@@ -42,7 +42,7 @@ services:
     container_name: hubcinema-sqlserver
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=StrongPass@123
+      - SA_PASSWORD=${SA_PASSWORD}
       - MSSQL_PID=Express
     ports:
       - "1433:1433"

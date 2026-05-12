@@ -3,6 +3,11 @@
 # Quick Deploy Script for HubCinema API (Linux/Mac)
 # Ch?y: chmod +x deploy.sh && ./deploy.sh
 
+# Load .env file if exists
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
 # ============================================
 # C?U HÌNH - Thay ??i theo môi tr??ng c?a b?n
 # ============================================
@@ -85,8 +90,8 @@ run_container() {
         --restart unless-stopped \
         -p ${HOST_PORT}:${CONTAINER_PORT} \
         -e ASPNETCORE_ENVIRONMENT=Production \
-        -e ConnectionStrings__DefaultConnection="Data Source=160.30.44.204,14334;Initial Catalog=cinema;User ID=sa;Password=StrongPass@123;Encrypt=True;Trust Server Certificate=True" \
-        -e Redis__ConnectionString="redis-18049.crce264.ap-east-1-1.ec2.cloud.redislabs.com:18049,password=PjEAlhDFKaccsFIryc8YfQqOz2tGLaDX,abortConnect=False" \
+        -e ConnectionStrings__DefaultConnection="$DB_CONNECTION" \
+        -e Redis__ConnectionString="$REDIS_CONNECTION" \
         ${FULL_IMAGE_NAME}
     
     if [ $? -eq 0 ]; then
@@ -132,8 +137,8 @@ docker run -d \
     --restart unless-stopped \
     -p 80:8080 \
     -e ASPNETCORE_ENVIRONMENT=Production \
-    -e ConnectionStrings__DefaultConnection='Data Source=160.30.44.204,14334;Initial Catalog=cinema;User ID=sa;Password=StrongPass@123;Encrypt=True;Trust Server Certificate=True' \
-    -e Redis__ConnectionString='redis-18049.crce264.ap-east-1-1.ec2.cloud.redislabs.com:18049,password=PjEAlhDFKaccsFIryc8YfQqOz2tGLaDX,abortConnect=False' \
+    -e ConnectionStrings__DefaultConnection='$DB_CONNECTION' \
+    -e Redis__ConnectionString='$REDIS_CONNECTION' \
     ${FULL_IMAGE_NAME}
 
 echo "Deploy completed!"
